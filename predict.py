@@ -19,24 +19,25 @@ DEFAULT_CLASSES = [
 
 
 def load_model(num_classes: int = len(DEFAULT_CLASSES), model_path: Path = MODEL_PATH):
-    model = models.mobilenet_v2(weights=models.MobileNet_V2_Weights.DEFAULT)
-    in_features = model.classifier[1].in_features
-    model.classifier[1] = nn.Linear(in_features, num_classes)
+    classes = DEFAULT_CLASSES
+    checkpoint = None
 
     if model_path.exists():
         checkpoint = torch.load(model_path, map_location=DEVICE)
+        if isinstance(checkpoint, dict) and "classes" in checkpoint:
+            classes = checkpoint["classes"]
+
+    model = models.mobilenet_v2(weights=models.MobileNet_V2_Weights.DEFAULT)
+    in_features = model.classifier[1].in_features
+    model.classifier[1] = nn.Linear(in_features, len(classes))
+
+    if checkpoint is not None:
         if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
             model.load_state_dict(checkpoint["model_state_dict"])
-            classes = checkpoint.get("classes", DEFAULT_CLASSES)
         elif isinstance(checkpoint, dict):
             model.load_state_dict(checkpoint)
-            classes = DEFAULT_CLASSES
         else:
             model = checkpoint
-            classes = DEFAULT_CLASSES
-    else:
-        # Chưa có model.pth đã train -> dùng tạm backbone pretrained để test luồng chạy
-        classes = DEFAULT_CLASSES
 
     model.to(DEVICE)
     model.eval()
