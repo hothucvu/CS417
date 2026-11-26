@@ -1,0 +1,17 @@
+﻿# Môi trường ảo & cache Python
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Dữ liệu ảnh & file trọng số lớn
+data/
+models/*.pth
+models/*.onnx
+test_samples/
+
+# File hệ thống Windows
+.DS_Store
+Thumbs.db
+Desktop.ini
